@@ -3,7 +3,6 @@ package com.woka.mysqlproject.entity;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -14,71 +13,74 @@ public class UserEntity implements UserDetails {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-    private String name;
-    @Column(unique = true)
-    private String email;
-    private String password;
+  private String name;
 
-    // getters and setters
+  @Column(unique = true)
+  private String email;
 
-    public Long getId(){
-        return this.id;
-    }
+  private String password;
 
-   public void setPassword(String password){
-     this.password=password;
-   }
+  // getters and setters
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
-    }
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-    public String getPassword(){
-     return this.password;
-   }
+  public Long getId() {
+    return this.id;
+  }
 
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
+  public void setPassword(String password) {
+    this.password = password;
+  }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of();
+  }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
+  public String getPassword() {
+    return this.password;
+  }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
+  @Override
+  public String getUsername() {
+    return this.email;
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
-    }
+  @Override
+  public boolean isAccountNonExpired() {
+    return UserDetails.super.isAccountNonExpired();
+  }
 
-    public void setEmail(String email){
-        this.email=email;
-    }
+  @Override
+  public boolean isAccountNonLocked() {
+    return UserDetails.super.isAccountNonLocked();
+  }
 
-    public String getEmail(){
-        return this.email;
-    }
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return UserDetails.super.isCredentialsNonExpired();
+  }
 
-    public void setName(String name){
-        this.name=name;
-    }
+  @Override
+  public boolean isEnabled() {
+    return UserDetails.super.isEnabled();
+  }
 
-    public String getName(){
-        return this.name;
-    }
+  public void setEmail(String email) {
+    this.email = email;
+  }
 
+  public String getEmail() {
+    return this.email;
+  }
 
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getName() {
+    return this.name;
+  }
 }
-

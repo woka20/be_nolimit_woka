@@ -12,8 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.w3c.dom.stylesheets.LinkStyle;
-
 import java.util.List;
 
 @RestController
@@ -67,18 +65,20 @@ public class PostEntityController {
 
       // Fetch the user by ID, you can also fetch by username if needed
       UserEntity user = userEntityService.findByUsername(username);
-      try{
-      PostEntity post = postEntityService.getById(id);
-      if (user != null && user.getId().equals(post.getAuthorId())) {
-        post.setContent(updateUserRequest.getContent());
-        postEntityService.postContent(post);
-        return ResponseEntity.ok(post);
-      }else {
-        ErrorResponse errorResponse = new ErrorResponse("You Don't have Access to this post", HttpStatus.NOT_FOUND.value());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
-      }
-      }catch (Exception e){
-        ErrorResponse errorResponse =  new ErrorResponse("ID Not Found", HttpStatus.NOT_FOUND.value());
+      try {
+        PostEntity post = postEntityService.getById(id);
+        if (user != null && user.getId().equals(post.getAuthorId())) {
+          post.setContent(updateUserRequest.getContent());
+          postEntityService.postContent(post);
+          return ResponseEntity.ok(post);
+        } else {
+          ErrorResponse errorResponse =
+              new ErrorResponse("You Don't have Access to this post", HttpStatus.NOT_FOUND.value());
+          return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
+      } catch (Exception e) {
+        ErrorResponse errorResponse =
+            new ErrorResponse("ID Not Found", HttpStatus.NOT_FOUND.value());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
       }
     } else {
@@ -102,7 +102,8 @@ public class PostEntityController {
           ErrorResponse errorResponse = new ErrorResponse("Delete Success", HttpStatus.OK.value());
           return ResponseEntity.status(HttpStatus.OK).body(errorResponse);
         }
-        ErrorResponse errorResponse = new ErrorResponse("You dont have access to this post", HttpStatus.OK.value());
+        ErrorResponse errorResponse =
+            new ErrorResponse("You dont have access to this post", HttpStatus.OK.value());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
       } catch (Exception e) {
         ErrorResponse errorResponse =

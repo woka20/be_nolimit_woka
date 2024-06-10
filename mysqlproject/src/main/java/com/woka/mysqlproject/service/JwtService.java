@@ -59,9 +59,7 @@ public class JwtService {
         .setExpiration(new Date(System.currentTimeMillis() + 1000000))
         .signWith(SignatureAlgorithm.HS256, secretKey)
         .compact();
-
-    }
-
+  }
 
   public Boolean validateToken(String token, String username) {
     final String extractedUsername = extractEmail(token);

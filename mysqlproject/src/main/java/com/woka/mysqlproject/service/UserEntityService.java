@@ -3,16 +3,11 @@ package com.woka.mysqlproject.service;
 import com.woka.mysqlproject.entity.UserEntity;
 import com.woka.mysqlproject.repository.UserEntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
-public class UserEntityService implements UserDetailsService {
+public class UserEntityService{
 
     @Autowired
     private UserEntityRepository userRepository;
@@ -29,13 +24,5 @@ public class UserEntityService implements UserDetailsService {
         return userRepository.findByEmail(username);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity user = userRepository.findByEmail(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found with email: " + username);
-        }
-        return new CustomUserDetails(user); // Return a CustomUserDetails object
-    }
 }
 
