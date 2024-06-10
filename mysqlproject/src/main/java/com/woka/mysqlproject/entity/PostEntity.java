@@ -28,4 +28,32 @@ public class PostEntity {
   protected void onUpdate() {
     updatedAt = LocalDateTime.now();
   }
+
+  public Long getId() {
+    return this.id;
+  }
+
+  public LocalDateTime getCreatedAt() {
+    return this.createdAt;
+  }
+
+  public LocalDateTime getUpdateAt() {
+    return this.updatedAt;
+  }
+
+  public Long getAuthorId() {
+    return this.authorId;
+  }
+
+  public void setAuthorId(Long authorId) {
+    this.authorId = authorId;
+  }
+
+  public void setContent(String content) {
+    this.content = content;
+  }
+
+  public String getContent() {
+    return this.content;
+  }
 }
