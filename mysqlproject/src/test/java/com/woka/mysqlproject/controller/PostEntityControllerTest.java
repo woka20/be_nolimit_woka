@@ -52,7 +52,7 @@ public class PostEntityControllerTest {
     }
 
     @Test
-    public void postNewAuthenticatedUserReturnsPostEntity() {
+    public void postNewAuthenticatedUserReturnsValidPostEntity() {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
         when(authentication.getPrincipal()).thenReturn(userDetails);
@@ -147,7 +147,7 @@ public class PostEntityControllerTest {
     }
 
     @Test
-    public void deletePostById_ValidId_ReturnsSuccessResponse() {
+    public void deletePostByIdValidIdReturnsSuccessResponse() {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
         when(authentication.getPrincipal()).thenReturn(userDetails);

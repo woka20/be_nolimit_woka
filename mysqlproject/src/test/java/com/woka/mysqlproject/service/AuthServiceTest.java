@@ -15,102 +15,91 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
 import javax.management.openmbean.KeyAlreadyExistsException;
-import java.util.Optional;
 
 public class AuthServiceTest {
 
-    @Mock
-    private UserEntityRepository userEntityRepository;
+  @Mock private UserEntityRepository userEntityRepository;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
+  @Mock private PasswordEncoder passwordEncoder;
 
-    @Mock
-    private AuthenticationManager authenticationManager;
+  @Mock private AuthenticationManager authenticationManager;
 
-    @InjectMocks
-    private AuthService authService;
+  @InjectMocks private AuthService authService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+  }
 
-    @Test
-    void signupNewUserReturnsSavedUser() {
-        // Arrange
-        UserEntity inputUser = new UserEntity();
-        inputUser.setName("John Doe");
-        inputUser.setEmail("john@example.com");
-        inputUser.setPassword("password");
+  @Test
+  void signupNewUser() {
+    // Arrange
+    UserEntity inputUser = new UserEntity();
+    inputUser.setName("John Doe");
+    inputUser.setEmail("john@example.com");
+    inputUser.setPassword("password");
 
-        UserEntity savedUser = new UserEntity();
-        savedUser.setName("John Doe");
-        savedUser.setEmail("john@example.com");
-        savedUser.setPassword("encodedPassword");
+    UserEntity savedUser = new UserEntity();
+    savedUser.setName("John Doe");
+    savedUser.setEmail("john@example.com");
+    savedUser.setPassword("encodedPassword");
 
-        when(passwordEncoder.encode(inputUser.getPassword())).thenReturn("encodedPassword");
-        when(userEntityRepository.findByEmail(inputUser.getEmail())).thenReturn(null);
-        when(userEntityRepository.save(any(UserEntity.class))).thenReturn(savedUser);
+    when(passwordEncoder.encode(inputUser.getPassword())).thenReturn("encodedPassword");
+    when(userEntityRepository.findByEmail(inputUser.getEmail())).thenReturn(null);
+    when(userEntityRepository.save(any(UserEntity.class))).thenReturn(savedUser);
 
-        // Act
-        UserEntity result = authService.signup(inputUser);
+    // Act
+    UserEntity result = authService.signup(inputUser);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals("john@example.com", result.getEmail());
-        verify(userEntityRepository).save(any(UserEntity.class));
-    }
+    // Assert
+    assertNotNull(result);
+    assertEquals("john@example.com", result.getEmail());
+    verify(userEntityRepository).save(any(UserEntity.class));
+  }
 
-    @Test
-    public void signupExistingUserThrowsKeyAlreadyExistsException() {
-        // Arrange
-        UserEntity inputUser = new UserEntity();
-        inputUser.setName("John Doe");
-        inputUser.setEmail("john@example.com");
-        inputUser.setPassword("password");
+  @Test
+  public void signupExistingUserThrowsKeyAlreadyExistsException() {
+    UserEntity inputUser = new UserEntity();
+    inputUser.setName("John Doe");
+    inputUser.setEmail("john@example.com");
+    inputUser.setPassword("password");
 
-        when(userEntityRepository.findByEmail(inputUser.getEmail())).thenReturn(new UserEntity());
+    when(userEntityRepository.findByEmail(inputUser.getEmail())).thenReturn(new UserEntity());
 
-        // Act & Assert
-        assertThrows(KeyAlreadyExistsException.class, () -> authService.signup(inputUser));
-    }
+    // Act & Assert
+    assertThrows(KeyAlreadyExistsException.class, () -> authService.signup(inputUser));
+  }
 
-    @Test
-    public void authenticateValidCredentialsReturnsUser() {
-        // Arrange
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsername("john@example.com");
-        loginRequest.setPassword("password");
+  @Test
+  public void authenticateValidCredentialsReturnsValidUser() {
+    LoginRequest loginRequest = new LoginRequest();
+    loginRequest.setUsername("john@example.com");
+    loginRequest.setPassword("password");
 
-        UserEntity userEntity = new UserEntity();
-        userEntity.setEmail("john@example.com");
+    UserEntity userEntity = new UserEntity();
+    userEntity.setEmail("john@example.com");
 
-        when(userEntityRepository.findByEmail(loginRequest.getUsername())).thenReturn(userEntity);
+    when(userEntityRepository.findByEmail(loginRequest.getUsername())).thenReturn(userEntity);
 
-        // Act
-        UserEntity result = authService.authenticate(loginRequest);
+    UserEntity result = authService.authenticate(loginRequest);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals("john@example.com", result.getEmail());
-        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-    }
+    // Assert
+    assertNotNull(result);
+    assertEquals("john@example.com", result.getEmail());
+    verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+  }
 
-    @Test
-    public void authenticateInvalidCredentialsThrowsException() {
-        // Arrange
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsername("john@example.com");
-        loginRequest.setPassword("wrongpassword");
+  @Test
+  public void authenticateInvalidCredentialsThrowsException() {
+    LoginRequest loginRequest = new LoginRequest();
+    loginRequest.setUsername("john@example.com");
+    loginRequest.setPassword("wrongpassword");
 
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new RuntimeException("Authentication failed"));
+    when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+        .thenThrow(new RuntimeException("Authentication failed"));
 
-        // Act & Assert
-        assertThrows(RuntimeException.class, () -> authService.authenticate(loginRequest));
-    }
+    // Act & Assert
+    assertThrows(RuntimeException.class, () -> authService.authenticate(loginRequest));
+  }
 }
-
