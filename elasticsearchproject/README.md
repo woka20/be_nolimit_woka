@@ -3,6 +3,17 @@
 ## Overview
 This API provides various endpoints to retrieve statistical information about employees. Below is a detailed description of each endpoint available in the API.
 
+## Technologies Used
+* Java SDK 17
+* Spring Boot (https://start.spring.io/)
+* ElasticSearch Server 6.8.0
+
+
+## Pre-Requirement
+1 . Make sure Elasticsearch 6.8.0 has been installed in your local computer.
+2 . Clone and follow instruction in here https://gitlab.com/adik.darmadi/dataset-elastic
+
+
 ## Endpoints
 
 ### 1. Get Total Count of Employees
