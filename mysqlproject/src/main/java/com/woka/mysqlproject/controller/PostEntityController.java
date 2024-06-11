@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/content")
+@RequestMapping
 public class PostEntityController {
 
   @Autowired private PostEntityService postEntityService;
 
   @Autowired private UserEntityService userEntityService;
 
-  @PostMapping
+  @PostMapping("/api/content")
   public ResponseEntity<PostEntity> postNew(@RequestBody PostEntity article) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication != null && authentication.isAuthenticated()) {
@@ -37,12 +37,12 @@ public class PostEntityController {
     return ResponseEntity.ok(article);
   }
 
-  @GetMapping("/all-content")
+  @GetMapping("/public/content/all-content")
   public ResponseEntity<List<PostEntity>> getAllPosts() {
     return ResponseEntity.ok(postEntityService.getAll());
   }
 
-  @GetMapping("/{id}")
+  @GetMapping("public/content/{id}")
   public ResponseEntity<?> getPostById(@PathVariable Long id) {
 
     try {
@@ -55,7 +55,7 @@ public class PostEntityController {
     }
   }
 
-  @PutMapping("/{id}")
+  @PutMapping("/api/content/{id}")
   public ResponseEntity<?> updatePostById(
       @PathVariable Long id, @RequestBody PostEntity updateUserRequest) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -86,7 +86,7 @@ public class PostEntityController {
     }
   }
 
-  @DeleteMapping("/{id}")
+  @DeleteMapping("/api/content/{id}")
   public ResponseEntity<?> deletePostById(@PathVariable Long id) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication != null && authentication.isAuthenticated()) {
