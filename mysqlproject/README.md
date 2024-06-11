@@ -218,6 +218,9 @@ This endpoint allows deleting a specific blog post based on its unique identifie
   "status": 200
 }
 ```
+## Unit Test
+ You can run `mvn test` and cek its jacoco report to see coverage.
+![img_1.png](img_1.png)
 
 Information about status code:
 
