@@ -22,11 +22,22 @@ import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.*;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class CustomEmployeeRepositoryImpl implements CustomEmployeeRepository {
 
+
+    @Value("${elasticsearch.main.index}")
+    private String mainIndex;
+
+    @Value("${elasticsearch.new.index}")
+    private String newIndex;
+
+    @Value("${elasticsearch.terms.size}")
+    private int termsSize;
 
     private MappingUtil mappingUtil;
 
@@ -36,6 +47,8 @@ public class CustomEmployeeRepositoryImpl implements CustomEmployeeRepository {
     private ReindexUtil reindexUtil;
 
 
+
+
     private final RestHighLevelClient restHighLevelClient;
 
     public CustomEmployeeRepositoryImpl(RestHighLevelClient restHighLevelClient) {
@@ -43,7 +56,7 @@ public class CustomEmployeeRepositoryImpl implements CustomEmployeeRepository {
     }
 
     @Override
-    public long countEmployee() {
+    public Map<String,Long> countEmployee() {
         SearchRequest searchRequest = new SearchRequest("companydatabase");
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
@@ -51,29 +64,31 @@ public class CustomEmployeeRepositoryImpl implements CustomEmployeeRepository {
         searchSourceBuilder.aggregation(
                 AggregationBuilders.terms("distinct_ids_agg")
                         .field("_id")
-                        .size(7000000)
+                        .size(termsSize)
         );
 
         searchRequest.source(searchSourceBuilder);
 
         try {
             SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-            return searchResponse.getHits().getTotalHits().value;
+            Map<String,Long> mapCount= new HashMap<>();
+            mapCount.put("Total Count Employee", searchResponse.getHits().getTotalHits().value);
+            return mapCount;
 
         } catch (IOException e) {
             e.printStackTrace();
-            return 0;
+            return null;
         }
     }
 
-    public Double averageSalary() {
-        SearchRequest searchRequest = new SearchRequest("companydatabase");
+    public  Map<String,Double> averageSalary() {
+        SearchRequest searchRequest = new SearchRequest(mainIndex);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
         searchSourceBuilder.aggregation(
                 AggregationBuilders.terms("distinct_ids_agg")
                         .field("_id")
-                        .size(7000000) // Adjust this size to fit your dataset
+                        .size(termsSize) // Adjust this size to fit your dataset
                         .subAggregation(AggregationBuilders.sum("total_salary").field("Salary"))
         );
 
@@ -92,17 +107,18 @@ public class CustomEmployeeRepositoryImpl implements CustomEmployeeRepository {
                 count++;
             }
 
-            System.out.println(totalSalary);
-            return totalSalary / count;
+            Map<String, Double> mapAverage = new HashMap<>();
+            mapAverage.put("Average Salary of All Employees", totalSalary / count);
+            return mapAverage;
 
         } catch (IOException e) {
             e.printStackTrace();
-            return 0.4;
+            return null;
         }
     }
 
     public MinMaxResponse minMaxSalary() {
-        SearchRequest searchRequest = new SearchRequest("companydatabase");
+        SearchRequest searchRequest = new SearchRequest(mainIndex);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
         searchSourceBuilder.aggregation(
@@ -133,7 +149,7 @@ public class CustomEmployeeRepositoryImpl implements CustomEmployeeRepository {
 
     @Override
     public Histogram ageDistribution() {
-        SearchRequest searchRequest = new SearchRequest("companydatabase");
+        SearchRequest searchRequest = new SearchRequest(mainIndex);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
         searchSourceBuilder.aggregation(
@@ -158,7 +174,7 @@ public class CustomEmployeeRepositoryImpl implements CustomEmployeeRepository {
 
     @Override
     public Map<String,Long> genderDistribution() throws IOException {
-        SearchRequest searchRequest = new SearchRequest("companydatabase");
+        SearchRequest searchRequest = new SearchRequest(mainIndex);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
 
@@ -166,14 +182,14 @@ public class CustomEmployeeRepositoryImpl implements CustomEmployeeRepository {
         mappingUtil= new MappingUtil(restHighLevelClient);
 
 
-        indexUtil.allowIndexModification("companydatabase");
-        mappingUtil.updateFieldToKeyword("companydatabase", "Gender", "text");
+        indexUtil.allowIndexModification(mainIndex);
+        mappingUtil.updateFieldToKeyword(mainIndex, "Gender", "text");
 
 
         searchSourceBuilder.aggregation(
                 AggregationBuilders.terms("distribution_gender_agg")
                         .field("Gender")
-                        .size(77000)
+                        .size(termsSize)
 
 
         );
@@ -199,20 +215,20 @@ public class CustomEmployeeRepositoryImpl implements CustomEmployeeRepository {
 
     @Override
     public  Map<String, Long>  maritalDistribution() throws IOException {
-        SearchRequest searchRequest = new SearchRequest("companydatabase");
+        SearchRequest searchRequest = new SearchRequest(mainIndex);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
         indexUtil=new IndexUtil(restHighLevelClient);
         mappingUtil= new MappingUtil(restHighLevelClient);
 
 
-        indexUtil.allowIndexModification("companydatabase");
-        mappingUtil.updateFieldToKeyword("companydatabase", "MaritalStatus", "text");
+        indexUtil.allowIndexModification(mainIndex);
+        mappingUtil.updateFieldToKeyword(mainIndex, "MaritalStatus", "text");
 
         searchSourceBuilder.aggregation(
                 AggregationBuilders.terms("marital_status_dist_agg")
                         .field("MaritalStatus")
-                        .size(77000) // Optional: Number of terms to return
+                        .size(termsSize) // Optional: Number of terms to return
         );
 
         searchRequest.source(searchSourceBuilder);
@@ -242,11 +258,11 @@ public class CustomEmployeeRepositoryImpl implements CustomEmployeeRepository {
 
     @Override
     public  Map<String, Long>  dateOfJoinDistribution() throws IOException {
-        SearchRequest searchRequest = new SearchRequest("companydatabase");
+        SearchRequest searchRequest = new SearchRequest(mainIndex);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
         indexUtil=new IndexUtil(restHighLevelClient);
-        indexUtil.allowIndexModification("companydatabase");
+        indexUtil.allowIndexModification(mainIndex);
 
         searchSourceBuilder.aggregation(
                 AggregationBuilders.dateHistogram("joining_date_dist_agg")
@@ -282,7 +298,7 @@ public class CustomEmployeeRepositoryImpl implements CustomEmployeeRepository {
 
     @Override
     public  Map<String, Long>  interestDistribution() throws IOException {
-        SearchRequest searchRequest = new SearchRequest("newcompanydatabase");
+        SearchRequest searchRequest = new SearchRequest(newIndex);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
 
@@ -295,17 +311,17 @@ public class CustomEmployeeRepositoryImpl implements CustomEmployeeRepository {
 
 
 
-        indexUtil.allowIndexModification("companydatabase");
+        indexUtil.allowIndexModification(mainIndex);
         pipelineUtil.createSplitPipeline();
-        mappingUtil.updateFieldToKeyword("companydatabase", interestField, "text" );
-        indexUtil.allowIndexModification("newcompanydatabase");
-        reindexUtil.reindex("companydatabase", "newcompanydatabase");
+        mappingUtil.updateFieldToKeyword(mainIndex, interestField, "text" );
+        indexUtil.allowIndexModification(newIndex);
+        reindexUtil.reindex(mainIndex, newIndex);
 
 
         searchSourceBuilder.aggregation(
                 AggregationBuilders.terms("in_agg")
                         .field(interestField+".keyword")
-                        .size(170000) // Optional: Number of terms to return
+                        .size(termsSize) // Optional: Number of terms to return
         );
 
         searchRequest.source(searchSourceBuilder);
@@ -329,16 +345,12 @@ public class CustomEmployeeRepositoryImpl implements CustomEmployeeRepository {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
-
         }
-
-
-
     }
 
     @Override
     public Map<String,Long>  designationDistribution() throws IOException {
-        SearchRequest searchRequest = new SearchRequest("newcompanydatabase");
+        SearchRequest searchRequest = new SearchRequest(newIndex);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
         indexUtil=new IndexUtil(restHighLevelClient);
@@ -347,17 +359,17 @@ public class CustomEmployeeRepositoryImpl implements CustomEmployeeRepository {
         mappingUtil= new MappingUtil(restHighLevelClient);
 
 
-        indexUtil.allowIndexModification("companydatabase");
+        indexUtil.allowIndexModification(mainIndex);
         pipelineUtil.createSplitPipeline();
-        mappingUtil.updateFieldToKeyword("companydatabase", "Designation", "text" );
-        indexUtil.allowIndexModification("newcompanydatabase");
-        reindexUtil.reindex("companydatabase", "newcompanydatabase");
+        mappingUtil.updateFieldToKeyword(mainIndex, "Designation", "text" );
+        indexUtil.allowIndexModification(newIndex);
+        reindexUtil.reindex(mainIndex, newIndex);
 
 
         searchSourceBuilder.aggregation(
                 AggregationBuilders.terms("designation_dist_agg")
                         .field("Designation.keyword")
-                        .size(770000)
+                        .size(termsSize)
         );
 
         searchRequest.source(searchSourceBuilder);
@@ -381,36 +393,5 @@ public class CustomEmployeeRepositoryImpl implements CustomEmployeeRepository {
         }
 
     }
-
-    public void findDuplicates() throws IOException {
-        SearchRequest searchRequest = new SearchRequest("companydatabase");
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.matchAllQuery());
-
-        searchSourceBuilder.aggregation(
-                AggregationBuilders.terms("new_distinct_ids_agg")
-                        .field("_id")
-                        .size(7000000)
-        );
-
-        searchRequest.source(searchSourceBuilder);
-
-        try {
-            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-            ParsedStringTerms distinctIdsAgg = searchResponse.getAggregations().get("new_distinct_ids_agg");
-            List<? extends Terms.Bucket> buckets = distinctIdsAgg.getBuckets();
-            int count = 0;
-            for (Terms.Bucket bucket : buckets) {
-                count++;
-                if (bucket.getDocCount() > 1) {
-                    System.out.println("ID: " + bucket.getKeyAsString() + ", Doc Count: " + bucket.getDocCount());
-                }
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 
 }

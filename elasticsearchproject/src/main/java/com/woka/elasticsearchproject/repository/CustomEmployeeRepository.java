@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.util.Map;
 
 public interface CustomEmployeeRepository {
-    long countEmployee();
-    Double averageSalary();
+    Map<String,Long> countEmployee();
+    Map<String,Double>  averageSalary();
     MinMaxResponse minMaxSalary();
     Histogram ageDistribution();
     Map<String,Long>  genderDistribution() throws IOException;;
@@ -16,6 +16,5 @@ public interface CustomEmployeeRepository {
     Map<String, Long>  dateOfJoinDistribution() throws IOException;
     Map<String, Long>  interestDistribution() throws IOException;
     Map<String,Long>  designationDistribution() throws IOException;
-    void findDuplicates() throws IOException;
     
 }

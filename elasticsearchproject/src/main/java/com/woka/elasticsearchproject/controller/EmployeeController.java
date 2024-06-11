@@ -3,6 +3,7 @@ package com.woka.elasticsearchproject.controller;
 import com.woka.elasticsearchproject.response.MinMaxResponse;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.woka.elasticsearchproject.services.EmployeeService;
@@ -18,28 +19,29 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     @GetMapping("/count")
-    public long countEmployees() {
-        return employeeService.getAllEmployeesCount();
+    public ResponseEntity<?> countEmployees() {
+        return ResponseEntity.ok(employeeService.getAllEmployeesCount());
     }
 
     @GetMapping("/average")
-    public Double averageEmployeesSalary() {
-        return employeeService.getAverageSalary();
+    public ResponseEntity<?> averageEmployeesSalary() {
+        return ResponseEntity.ok(employeeService.getAverageSalary());
+
     }
 
     @GetMapping("/min-max-salary")
-    public MinMaxResponse minMaxSalary() {
-        return employeeService.getMinMaxSalary();
+    public ResponseEntity<MinMaxResponse> minMaxSalary() {
+        return ResponseEntity.ok(employeeService.getMinMaxSalary());
     }
 
     @GetMapping("/age-distribution")
-    public Histogram  histogramAgeDistribution() {
-        return employeeService.getAgeDistribution();
+    public ResponseEntity<Histogram>  histogramAgeDistribution() {
+        return ResponseEntity.ok(employeeService.getAgeDistribution());
     }
 
     @GetMapping("/gender-distribution")
-    public  Map<String,Long>  histogramGender() throws IOException {
-        return employeeService.getGenderDistribution();
+    public  ResponseEntity<Map<String,Long>>  histogramGender() throws IOException {
+        return ResponseEntity.ok(employeeService.getGenderDistribution());
     }
 
     @GetMapping("/marital-distribution")
@@ -48,22 +50,18 @@ public class EmployeeController {
     }
 
     @GetMapping("/join-date-distribution")
-    public  Map<String, Long>  histogramDateOfJoin() throws IOException {
-        return employeeService.getDateOfJoinDistribution();
+    public   ResponseEntity<Map<String,Long>>   histogramDateOfJoin() throws IOException {
+        return ResponseEntity.ok(employeeService.getDateOfJoinDistribution());
     }
 
     @GetMapping("/top-interest-distribution")
-    public  Map<String, Long>  topInterest() throws IOException {
-        return employeeService.getTopInterestDistribution();
+    public   ResponseEntity<Map<String,Long>>   topInterest() throws IOException {
+        return ResponseEntity.ok(employeeService.getTopInterestDistribution());
     }
 
     @GetMapping("/designation-distribution")
-    public Map<String,Long>  histogramDesignation() throws IOException {
-        return employeeService.getDesignationDistribution();
+    public ResponseEntity<Map<String,Long>>   histogramDesignation() throws IOException {
+        return ResponseEntity.ok(employeeService.getDesignationDistribution());
     }
 
-    @GetMapping("/duplicate")
-    public void duplicates() throws IOException {
-        employeeService.getDuplicate();
-    }
 }

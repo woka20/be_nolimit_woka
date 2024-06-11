@@ -16,11 +16,11 @@ public class EmployeeService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    public long getAllEmployeesCount() {
+    public  Map<String,Long>  getAllEmployeesCount() {
         return employeeRepository.countEmployee();
     }
 
-    public Double getAverageSalary() {
+    public  Map<String,Double>  getAverageSalary() {
         return employeeRepository.averageSalary();
     }
 
@@ -50,9 +50,5 @@ public class EmployeeService {
 
     public Map<String,Long>  getDesignationDistribution() throws IOException {
         return employeeRepository.designationDistribution();
-    }
-
-    public void getDuplicate() throws IOException {
-        employeeRepository.findDuplicates();
     }
 }
