@@ -12,6 +12,7 @@ This API provides various endpoints to retrieve statistical information about em
 ## Pre-Requirement
 1 . Make sure Elasticsearch 6.8.0 has been installed in your local computer.
 2 . Clone and follow instruction in here https://gitlab.com/adik.darmadi/dataset-elastic
+3 . Run ElasticSearch server
 
 
 ## Endpoints
